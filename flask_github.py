@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
     GitHub-Flask
-    ---------------
+    ============
 
     Authenticate users in your Flask app with GitHub.
 
@@ -158,10 +158,10 @@ class GitHub(object):
         return self.request('HEAD', resource, **kwargs)
 
     def patch(self, resource, **kwargs):
-        raise NotImplementedError
+        return self.request('PATCH', resource, **kwargs)
 
     def put(self, resource, **kwargs):
-        raise NotImplementedError
+        return self.request('PUT', resource, **kwargs)
 
     def delete(self, resource, **kwargs):
-        raise NotImplementedError
+        return self.request('DELETE', resource, **kwargs)

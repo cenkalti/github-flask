@@ -1,4 +1,4 @@
-Github-Flask
+GitHub-Flask
 ============
 
 GitHub-Flask is an extension for authenticating Flask applications with GitHub.

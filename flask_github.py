@@ -6,12 +6,16 @@
     Authenticate users in your Flask app with GitHub.
 
 """
+import logging
 from urllib import urlencode
 from urlparse import parse_qs
 from functools import wraps
 
 import requests
 from flask import redirect, request, json
+
+
+logger = logging.getLogger(__name__)
 
 
 class GitHubError(Exception):
@@ -65,6 +69,7 @@ class GitHub(object):
         Redirect to GitHub and request access to a user's data.
 
         """
+        logger.debug("Called authorize()")
         params = {
             'client_id': self.client_id,
             'redirect_uri': self.callback_url,
@@ -73,6 +78,7 @@ class GitHub(object):
             params['scope'] = scope
 
         url = self.BASE_AUTH_URL + 'authorize?' + urlencode(params)
+        logger.debug("Redirecting to %s", url)
         return redirect(url)
 
     def authorized_handler(self, f):
@@ -99,14 +105,18 @@ class GitHub(object):
         authenticate requests to GitHub.
 
         """
+        logger.debug("Handling response from GitHub")
         params = {
             'code': request.args.get('code'),
             'client_id': self.client_id,
             'client_secret': self.client_secret
         }
         url = self.BASE_AUTH_URL + 'access_token'
-        response = self.session.post(url, params)
+        logger.debug("POSTing to %s", url)
+        logger.debug(params)
+        response = self.session.post(url, data=params)
         data = parse_qs(response.content)
+        logger.debug("response.content = %s", data)
         for k, v in data.items():
             if len(v) == 1:
                 data[k] = v[0]

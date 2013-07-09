@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'GitHub-Flask'
-copyright = u'2013, Cenk Alti'
+copyright = u'2013, Cenk Altı'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -187,7 +187,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'GitHub-Flask.tex', u'GitHub-Flask Documentation',
-   u'Cenk Alti', 'manual'),
+   u'Cenk Altı', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -217,7 +217,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'github-flask', u'GitHub-Flask Documentation',
-     [u'Cenk Alti'], 1)
+     [u'Cenk Altı'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -231,7 +231,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'GitHub-Flask', u'GitHub-Flask Documentation',
-   u'Cenk Alti', 'GitHub-Flask', 'One line description of project.',
+   u'Cenk Altı', 'GitHub-Flask', 'One line description of project.',
    'Miscellaneous'),
 ]
 

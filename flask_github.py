@@ -120,7 +120,7 @@ class GitHub(object):
         for k, v in data.items():
             if len(v) == 1:
                 data[k] = v[0]
-        return data
+        return data.get('access_token', None)
 
     def handle_invalid_response(self):
         pass

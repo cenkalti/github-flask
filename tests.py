@@ -38,8 +38,8 @@ class GitHubTestCase(unittest.TestCase):
 
         @app.route('/github-callback')
         @github.authorized_handler
-        def authorized(resp):
-            access_token.append(resp['access_token'])
+        def authorized(token):
+            access_token.append(token)
             return ''
 
         # Mimics GitHub authorization URL

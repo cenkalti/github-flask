@@ -86,17 +86,16 @@ def token_getter():
 
 @app.route('/github-callback')
 @github.authorized_handler
-def authorized(resp):
+def authorized(access_token):
     next_url = request.args.get('next') or url_for('index')
-    if resp is None:
+    if access_token is None:
         return redirect(next_url)
 
-    token = resp['access_token']
-    user = User.query.filter_by(github_access_token=token).first()
+    user = User.query.filter_by(github_access_token=access_token).first()
     if user is None:
-        user = User(token)
+        user = User(access_token)
         db_session.add(user)
-    user.github_access_token = token
+    user.github_access_token = access_token
     db_session.commit()
 
     session['user_id'] = user.id

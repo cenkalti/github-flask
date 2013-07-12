@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class GitHubError(Exception):
+    """Raised if a request fails to the GitHub API."""
 
     def __str__(self):
         response = self.args[0]

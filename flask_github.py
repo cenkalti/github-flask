@@ -127,7 +127,8 @@ class GitHub(object):
 
     def raw_request(self, method, resource, params=None, **kwargs):
         """
-        Makes a HTTP request and returns the raw response.
+        Makes a HTTP request and returns the raw
+        :class:`~requests.Response` object.
 
         """
         if params is None:
@@ -141,6 +142,14 @@ class GitHub(object):
             method, url, params=params, allow_redirects=True, **kwargs)
 
     def request(self, method, resource, **kwargs):
+        """
+        Makes a request to the given endpoint.
+        Keyword arguments are passed to the :meth:`~requests.request` method.
+        If the content type of the response is JSON, it will be decoded
+        automatically and a dictionary will be returned.
+        Otherwise the :class:`~requests.Response` object is returned.
+
+        """
         response = self.raw_request(method, resource, **kwargs)
 
         status_code = str(response.status_code)
@@ -156,9 +165,13 @@ class GitHub(object):
             return response
 
     def get(self, resource, **kwargs):
+        """Shortcut for ``request('GET', resource)``."""
         return self.request('GET', resource, **kwargs)
 
     def post(self, resource, data, **kwargs):
+        """Shortcut for ``request('POST', resource)``.
+        Use this to make POST request since it will also encode ``data`` to
+        'application/x-www-form-urlencoded' format."""
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         data = json.dumps(data)
         return self.request('POST', resource, headers=headers,

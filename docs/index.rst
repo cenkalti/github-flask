@@ -134,16 +134,19 @@ They will return a dictionary representation of the given API endpoint.
 Full Example
 ------------
 
-A full example can be found in `example.py`_ file. Edit the file and change
-``GITHUB_CLIENT_ID`` and ``GITHUB_CLIENT_SECRET`` settings. Then you can run
-it as a python script:
+A full example can be found in `example.py`_ file.
+Install the required `Flask-SQLAlchemy`_ package first.
+Then edit the file and change
+``GITHUB_CLIENT_ID`` and ``GITHUB_CLIENT_SECRET`` settings.
+Then you can run it as a python script:
 
 .. code-block:: bash
 
+    $ pip install Flask-SQLAlchemy
     $ python example.py
 
 .. _example.py: https://github.com/cenkalti/github-flask/blob/master/example.py
-
+.. _Flask-SQLAlchemy: http://pythonhosted.org/Flask-SQLAlchemy/
 
 API Reference
 -------------

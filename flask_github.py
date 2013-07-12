@@ -91,13 +91,13 @@ class GitHub(object):
         @wraps(f)
         def decorated(*args, **kwargs):
             if 'code' in request.args:
-                data = self.handle_response()
+                data = self._handle_response()
             else:
-                data = self.handle_invalid_response()
+                data = self._handle_invalid_response()
             return f(*((data,) + args), **kwargs)
         return decorated
 
-    def handle_response(self):
+    def _handle_response(self):
         """
         Handles response after the redirect to GitHub. This response
         determines if the user has allowed the this application access. If we
@@ -122,7 +122,7 @@ class GitHub(object):
                 data[k] = v[0]
         return data.get('access_token', None)
 
-    def handle_invalid_response(self):
+    def _handle_invalid_response(self):
         pass
 
     def raw_request(self, method, resource, params=None, **kwargs):

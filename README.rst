@@ -19,9 +19,9 @@ Usage
 -----
 
 An example application is provided. Getting it up and running should be pretty
-straightforward. Edit exmple.py and change GITHUB_CLIENT_ID and
-GITHUB_CLIENT_SECRET settings. Then run the sample application to see how it's
-working:
+straightforward. Edit exmple.py and change ``GITHUB_CLIENT_ID`` and
+``GITHUB_CLIENT_SECRET`` settings. Then run the sample application to see how
+it's working:
 
 .. code-block:: bash
 

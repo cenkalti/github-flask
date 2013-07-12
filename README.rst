@@ -8,31 +8,23 @@ It also provides support for various other requests to the GitHub API.
 Installation
 ------------
 
-GitHub-Flask is available on PyPI::
+GitHub-Flask is available on PyPI:
 
-	pip install github-flask
+.. code-block:: bash
+
+    $ pip install github-flask
 
 
 Usage
 -----
 
 An example application is provided. Getting it up and running should be pretty
-straightforward. Just run the sample application to see how it's working::
+straightforward. Edit exmple.py and change GITHUB_CLIENT_ID and
+GITHUB_CLIENT_SECRET settings. Then run the sample application to see how it's
+working:
+
+.. code-block:: bash
 
     $ python example.py
 
-
-API Requests
-------------
-
-After authenticating, this extension also provides methods for doing
-requests to the GitHub API as the authenticated user::
-
-	github = GitHub()
-	github.init_app(app)
-
-	# returns the authenticated user resource as a dictionary
-	github.get('user')
-	
-	# returns this repository
-	github.get('repos/cenkalti/github-flask')
+More detailed documentation can be found here: xxx

@@ -125,10 +125,10 @@ They will return a dictionary representation of the given API endpoint.
 
 .. code-block:: python
 
-    @app.route('/user')
-    def user():
-        user_dict = github.get('user')
-        return str(user_dict)
+    @app.route('/repo')
+    def repo():
+        repo_dict = github.get('repos/cenkalti/github-flask')
+        return str(repo_dict)
 
 
 Full Example

@@ -14,6 +14,7 @@ from functools import wraps
 import requests
 from flask import redirect, request, json
 
+__version__ = '0.3.0'
 
 logger = logging.getLogger(__name__)
 

@@ -11,7 +11,8 @@ from setuptools import setup
 
 
 def read(*fname):
-    with open(os.path.join(os.path.dirname(__file__), *fname)) as f:
+    path = os.path.join(os.path.dirname(__file__), *fname)
+    with open(path) as f:
         return f.read()
 
 

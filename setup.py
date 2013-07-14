@@ -1,4 +1,3 @@
-# coding=utf-8
 """
 GitHub-Flask
 ------------
@@ -29,7 +28,7 @@ setup(
     version=get_version(),
     url='http://github.com/cenkalti/github-flask',
     license='MIT',
-    author=u'Cenk Altı',
+    author='Cenk Alti',
     author_email='cenkalti@gmail.com',
     description='Adds support for authorizing users with GitHub to Flask.',
     long_description=__doc__,

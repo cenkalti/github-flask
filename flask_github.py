@@ -14,7 +14,7 @@ from functools import wraps
 import requests
 from flask import redirect, request, json
 
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +31,7 @@ class GitHubError(Exception):
 
     @property
     def response(self):
+        """The :class:`~requests.Response` object for the request."""
         return self.args[0]
 
 

@@ -14,7 +14,7 @@ from functools import wraps
 import requests
 from flask import redirect, request, json
 
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
 logger = logging.getLogger(__name__)
 
@@ -23,12 +23,15 @@ class GitHubError(Exception):
     """Raised if a request fails to the GitHub API."""
 
     def __str__(self):
-        response = self.args[0]
         try:
-            message = response.json()['message']
+            message = self.response.json()['message']
         except Exception:
             message = None
-        return "%s: %s" % (response.status_code, message)
+        return "%s: %s" % (self.response.status_code, message)
+
+    @property
+    def response(self):
+        return self.args[0]
 
 
 class GitHub(object):

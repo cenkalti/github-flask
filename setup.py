@@ -34,6 +34,7 @@ setup(
     description='Adds support for authorizing users with GitHub to Flask.',
     long_description=__doc__,
     py_modules=['flask_github'],
+    test_suite='test_flask_github',
     zip_safe=False,
     include_package_data=True,
     platforms='any',

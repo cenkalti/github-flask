@@ -27,4 +27,5 @@ it's working:
 
     $ python example.py
 
-More detailed documentation can be found here: xxx
+More detailed documentation can be found here:
+https://github-flask.readthedocs.org

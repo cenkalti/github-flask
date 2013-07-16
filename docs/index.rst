@@ -32,7 +32,7 @@ Here’s an example of how GitHub-Flask is typically initialized and configured:
 .. code-block:: python
 
     from flask import Flask
-    flask flask_github import GitHub
+    from flask.ext.github import GitHub
 
     app = Flask(__name__)
     app.config['GITHUB_CLIENT_ID'] = 'XXX'

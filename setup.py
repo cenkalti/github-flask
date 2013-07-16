@@ -2,7 +2,14 @@
 GitHub-Flask
 ------------
 
-Adds support to authorize users with GitHub to Flask.
+Adds support to authorize users with GitHub and make API requests with Flask.
+
+Links
+`````
+
+* `documentation <http://github-flask.readthedocs.org>`_
+* `development version
+  <http://github.com/cenkalti/github-flask/zipball/master#egg=GitHub-Flask-dev>`_
 
 """
 import os
@@ -31,7 +38,7 @@ setup(
     license='MIT',
     author='Cenk Alti',
     author_email='cenkalti@gmail.com',
-    description='Adds support for authorizing users with GitHub to Flask.',
+    description='GitHub extension for Flask microframework',
     long_description=__doc__,
     py_modules=['flask_github'],
     test_suite='test_flask_github',

@@ -42,6 +42,7 @@ setup(
         'Flask',
         'requests',
     ],
+    tests_require=['mock'],
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',

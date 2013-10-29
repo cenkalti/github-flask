@@ -92,7 +92,7 @@ If the authorization fails ``oauth_token`` parameter will be ``None``:
 
         user = User.query.filter_by(github_access_token=oauth_token).first()
         if user is None:
-            user = User(token)
+            user = User(oauth_token)
             db_session.add(user)
 
         user.github_access_token = oauth_token

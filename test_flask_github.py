@@ -19,7 +19,7 @@ class GitHubTestCase(unittest.TestCase):
             assert data['client_secret'] == 'SEKRET'
             assert data['code'] == 'KODE'
             response = Mock()
-            response.content = 'access_token=asdf&token_type=bearer'
+            response.content = b'access_token=asdf&token_type=bearer'
             return response
         post.side_effect = assert_params
         auth_url.__get__ = Mock(return_value='http://localhost/oauth/')

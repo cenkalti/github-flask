@@ -7,8 +7,11 @@
 
 """
 import logging
-from urllib import urlencode
-from urlparse import parse_qs
+try:
+    from urllib.parse import urlencode, parse_qs
+except ImportError:
+    from urllib import urlencode
+    from urlparse import parse_qs
 from functools import wraps
 
 import requests
@@ -126,7 +129,10 @@ class GitHub(object):
         for k, v in data.items():
             if len(v) == 1:
                 data[k] = v[0]
-        return data.get('access_token', None)
+        token = data.get(b'access_token', None)
+        if token is not None:
+            token = token.decode('ascii')
+        return token
 
     def _handle_invalid_response(self):
         pass

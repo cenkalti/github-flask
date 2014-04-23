@@ -166,10 +166,8 @@ class GitHub(object):
 
         status_code = str(response.status_code)
 
-        if status_code.startswith('4'):
+        if not status_code.startswith('2'):
             raise GitHubError(response)
-
-        assert status_code.startswith('2')
 
         if response.headers['Content-Type'].startswith('application/json'):
             return response.json()

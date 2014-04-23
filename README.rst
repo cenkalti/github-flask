@@ -30,3 +30,7 @@ it's working:
 
 More detailed documentation can be found here:
 https://github-flask.readthedocs.org
+
+Documentation of the GitHub API:
+https://developer.github.com/v3/
+

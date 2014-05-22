@@ -59,6 +59,7 @@ class GitHub(object):
         self.client_secret = app.config['GITHUB_CLIENT_SECRET']
         self.callback_url = app.config['GITHUB_CALLBACK_URL']
         self.base_url = app.config.get('GITHUB_BASE_URL', self.BASE_URL)
+        self.auth_url = app.config.get('GITHUB_AUTH_URL', self.BASE_AUTH_URL)
         self.session = requests.session()
 
     def access_token_getter(self, f):
@@ -86,7 +87,7 @@ class GitHub(object):
         if scope is not None:
             params['scope'] = scope
 
-        url = self.BASE_AUTH_URL + 'authorize?' + urlencode(params)
+        url = self.auth_url + 'authorize?' + urlencode(params)
         logger.debug("Redirecting to %s", url)
         return redirect(url)
 
@@ -120,7 +121,7 @@ class GitHub(object):
             'client_id': self.client_id,
             'client_secret': self.client_secret
         }
-        url = self.BASE_AUTH_URL + 'access_token'
+        url = self.auth_url + 'access_token'
         logger.debug("POSTing to %s", url)
         logger.debug(params)
         response = self.session.post(url, data=params)

@@ -150,7 +150,7 @@ class GitHub(object):
         if 'access_token' not in params:
             params['access_token'] = self.get_access_token()
 
-        url = self.BASE_URL + resource
+        url = self.base_url + resource
         return self.session.request(
             method, url, params=params, allow_redirects=True, **kwargs)
 

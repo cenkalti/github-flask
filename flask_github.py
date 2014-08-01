@@ -74,7 +74,7 @@ class GitHub(object):
     def get_access_token(self):
         raise NotImplementedError
 
-    def authorize(self, scope=None):
+    def authorize(self, scope=None, redirect_uri=None):
         """
         Redirect to GitHub and request access to a user's data.
 
@@ -82,10 +82,11 @@ class GitHub(object):
         logger.debug("Called authorize()")
         params = {
             'client_id': self.client_id,
-            'redirect_uri': self.callback_url,
         }
         if scope is not None:
             params['scope'] = scope
+        if redirect_uri is not None:
+            params['redirect_uri'] = redirect_uri
 
         url = self.auth_url + 'authorize?' + urlencode(params)
         logger.debug("Redirecting to %s", url)

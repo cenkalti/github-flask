@@ -5,6 +5,9 @@ GitHub-Flask is an extension for authenticating Flask applications with GitHub.
 It also provides support for various other requests to the GitHub API.
 Compatible with Python 2.7 and 3.4.
 
+.. image:: https://travis-ci.org/cenkalti/github-flask.svg?branch=master
+    :target: https://travis-ci.org/cenkalti/github-flask
+
 
 Installation
 ------------

@@ -7,6 +7,8 @@ from mock import patch, Mock
 from flask import Flask, request, redirect
 from flask_github import GitHub
 
+logger = logging.getLogger(__name__)
+
 
 class GitHubTestCase(unittest.TestCase):
 
@@ -34,9 +36,9 @@ class GitHubTestCase(unittest.TestCase):
 
         @app.route('/login')
         def login():
-            return github.authorize()
+            return github.authorize(redirect_uri="http://localhost/callback")
 
-        @app.route('/github-callback')
+        @app.route('/callback')
         @github.authorized_handler
         def authorized(token):
             access_token.append(token)
@@ -46,9 +48,12 @@ class GitHubTestCase(unittest.TestCase):
         # http://developer.github.com/v3/oauth/#web-application-flow
         @app.route('/oauth/authorize')
         def handle_auth():
+            logger.info("in /oauth/authorize")
             called_auth.append(1)
             assert request.args['client_id'] == '123'
-            assert request.args['redirect_uri'] == 'http://localhost/github-callback'
+            logger.debug("client_id OK")
+            assert request.args['redirect_uri'] == 'http://localhost/callback'
+            logger.debug("redirect_uri OK")
             return redirect(request.args['redirect_uri'] + '?code=KODE')
 
         access_token = []
@@ -58,7 +63,7 @@ class GitHubTestCase(unittest.TestCase):
         client.get('/login', follow_redirects=True)
 
         assert called_auth
-        assert access_token == ['asdf']
+        assert access_token == ['asdf'], access_token
 
 
 if __name__ == '__main__':

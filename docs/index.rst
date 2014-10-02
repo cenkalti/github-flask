@@ -37,7 +37,6 @@ Here’s an example of how GitHub-Flask is typically initialized and configured:
     app = Flask(__name__)
     app.config['GITHUB_CLIENT_ID'] = 'XXX'
     app.config['GITHUB_CLIENT_SECRET'] = 'YYY'
-    app.config['GITHUB_CALLBACK_URL'] = 'http://example.com/github-callback'
 
     github = GitHub(app)
 
@@ -50,13 +49,6 @@ The following configuration settings exist for GitHub-Flask:
 
 `GITHUB_CLIENT_SECRET`              Your GitHub application's client secret.
 
-`GITHUB_CALLBACK_URL`               This is the URL that GitHub redirects the
-                                    user after authorization.
-                                    It must the same URL entered on your
-                                    application settings page.
-                                    You can enter something like
-                                    http://localhost:5000/github-callback
-                                    on both places during development.
 =================================== ==========================================
 
 

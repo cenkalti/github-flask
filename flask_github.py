@@ -57,7 +57,6 @@ class GitHub(object):
     def init_app(self, app):
         self.client_id = app.config['GITHUB_CLIENT_ID']
         self.client_secret = app.config['GITHUB_CLIENT_SECRET']
-        self.callback_url = app.config['GITHUB_CALLBACK_URL']
         self.base_url = app.config.get('GITHUB_BASE_URL', self.BASE_URL)
         self.auth_url = app.config.get('GITHUB_AUTH_URL', self.BASE_AUTH_URL)
         self.session = requests.session()

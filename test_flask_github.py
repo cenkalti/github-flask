@@ -30,7 +30,6 @@ class GitHubTestCase(unittest.TestCase):
 
         app.config['GITHUB_CLIENT_ID'] = '123'
         app.config['GITHUB_CLIENT_SECRET'] = 'SEKRET'
-        app.config['GITHUB_CALLBACK_URL'] = 'http://localhost/github-callback'
 
         github = GitHub(app)
 

@@ -20,7 +20,6 @@ DEBUG = True
 # Set these values
 GITHUB_CLIENT_ID = 'XXX'
 GITHUB_CLIENT_SECRET = 'YYY'
-GITHUB_CALLBACK_URL = 'http://localhost:5000/github-callback'
 
 # setup flask
 app = Flask(__name__)

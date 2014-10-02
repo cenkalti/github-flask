@@ -49,6 +49,13 @@ The following configuration settings exist for GitHub-Flask:
 
 `GITHUB_CLIENT_SECRET`              Your GitHub application's client secret.
 
+`BASE_URL`                          Base URL for API requests. Override this
+                                    to use with GitHub Enterprise. Default is
+                                    "https://api.github.com/".
+
+`BASE_AUTH_URL`                     Base authentication endpoint. Override this
+                                    to use with GitHub Enterprise. Default is
+                                    "https://github.com/login/oauth/".
 =================================== ==========================================
 
 

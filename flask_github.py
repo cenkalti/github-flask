@@ -79,12 +79,10 @@ class GitHub(object):
 
         """
         logger.debug("Called authorize()")
-        params = {
-            'client_id': self.client_id,
-        }
-        if scope is not None:
+        params = {'client_id': self.client_id}
+        if scope:
             params['scope'] = scope
-        if redirect_uri is not None:
+        if redirect_uri:
             params['redirect_uri'] = redirect_uri
 
         url = self.auth_url + 'authorize?' + urlencode(params)

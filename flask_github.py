@@ -19,7 +19,11 @@ from flask import redirect, request, json
 
 __version__ = '2.0.0'
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
+# Add NullHandler to prevent logging warnings on startup
+null_handler = logging.NullHandler()
+_logger.addHandler(null_handler)
+
 
 
 class GitHubError(Exception):
@@ -78,7 +82,7 @@ class GitHub(object):
         Redirect to GitHub and request access to a user's data.
 
         """
-        logger.debug("Called authorize()")
+        _logger.debug("Called authorize()")
         params = {'client_id': self.client_id}
         if scope:
             params['scope'] = scope
@@ -86,7 +90,7 @@ class GitHub(object):
             params['redirect_uri'] = redirect_uri
 
         url = self.auth_url + 'authorize?' + urlencode(params)
-        logger.debug("Redirecting to %s", url)
+        _logger.debug("Redirecting to %s", url)
         return redirect(url)
 
     def authorized_handler(self, f):
@@ -113,18 +117,18 @@ class GitHub(object):
         authenticate requests to GitHub.
 
         """
-        logger.debug("Handling response from GitHub")
+        _logger.debug("Handling response from GitHub")
         params = {
             'code': request.args.get('code'),
             'client_id': self.client_id,
             'client_secret': self.client_secret
         }
         url = self.auth_url + 'access_token'
-        logger.debug("POSTing to %s", url)
-        logger.debug(params)
+        _logger.debug("POSTing to %s", url)
+        _logger.debug(params)
         response = self.session.post(url, data=params)
         data = parse_qs(response.content)
-        logger.debug("response.content = %s", data)
+        _logger.debug("response.content = %s", data)
         for k, v in data.items():
             if len(v) == 1:
                 data[k] = v[0]

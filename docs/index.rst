@@ -41,7 +41,6 @@ Here’s an example of how GitHub-Flask is typically initialized and configured:
     # For GitHub Enterprise
     app.config['GITHUB_BASE_URL'] = 'https://HOSTNAME/api/v3/'
     app.config['GITHUB_AUTH_URL'] = 'https://HOSTNAME/login/oauth/'
-    app.config['GITHUB_CALLBACK_URL'] = 'https://HOSTNAME/login/oauth/authorize'
 
     github = GitHub(app)
 
@@ -61,9 +60,6 @@ The following configuration settings exist for GitHub-Flask:
 `GITHUB_AUTH_URL`                   Base authentication endpoint. Override this
                                     to use with GitHub Enterprise. Default is
                                     "https://github.com/login/oauth/".
-
-`GITHUB_CALLBACK_URL`               Callback authentication endpoint.
-
 =================================== ==========================================
 
 

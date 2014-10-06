@@ -62,9 +62,7 @@ The following configuration settings exist for GitHub-Flask:
                                     to use with GitHub Enterprise. Default is
                                     "https://github.com/login/oauth/".
 
-`GITHUB_CALLBACK_URL`               Base authentication endpoint. Override this
-                                    to use with GitHub Enterprise. Default is
-                                    "https://github.com/login/oauth/".
+`GITHUB_CALLBACK_URL`               Callback authentication endpoint.
 
 =================================== ==========================================
 

@@ -38,6 +38,10 @@ Here’s an example of how GitHub-Flask is typically initialized and configured:
     app.config['GITHUB_CLIENT_ID'] = 'XXX'
     app.config['GITHUB_CLIENT_SECRET'] = 'YYY'
 
+    # For GitHub Enterprise
+    app.config['GITHUB_BASE_URL'] = 'https://HOSTNAME/api/v3/'
+    app.config['GITHUB_AUTH_URL'] = 'https://HOSTNAME/login/oauth/'
+
     github = GitHub(app)
 
 The following configuration settings exist for GitHub-Flask:
@@ -49,11 +53,11 @@ The following configuration settings exist for GitHub-Flask:
 
 `GITHUB_CLIENT_SECRET`              Your GitHub application's client secret.
 
-`BASE_URL`                          Base URL for API requests. Override this
+`GITHUB_BASE_URL`                   Base URL for API requests. Override this
                                     to use with GitHub Enterprise. Default is
                                     "https://api.github.com/".
 
-`BASE_AUTH_URL`                     Base authentication endpoint. Override this
+`GITHUB_AUTH_URL`                   Base authentication endpoint. Override this
                                     to use with GitHub Enterprise. Default is
                                     "https://github.com/login/oauth/".
 =================================== ==========================================

@@ -186,6 +186,9 @@ class GitHub(object):
         Use this to make POST request since it will also encode ``data`` to
         'application/x-www-form-urlencoded' format."""
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        if "headers" in kwargs:
+            headers.update(kwargs["headers"])
+            del kwargs["headers"]
         data = json.dumps(data)
         return self.request('POST', resource, headers=headers,
                             data=data, **kwargs)

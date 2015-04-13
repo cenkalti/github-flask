@@ -173,7 +173,17 @@ class GitHub(object):
             raise GitHubError(response)
 
         if response.headers['Content-Type'].startswith('application/json'):
-            return response.json()
+            result = response.json()
+            while response.links.get('next'):
+                response = self.session.request(
+                        method, response.links['next']['url'], **kwargs)
+                if not status_code.startswith('2'):
+                    raise GitHubError(response)
+                if response.headers['Content-Type'].startswith('application/json'):
+                    result += response.json()
+                else:
+                    raise GitHubError(response)
+            return result
         else:
             return response
 

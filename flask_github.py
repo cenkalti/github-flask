@@ -156,7 +156,7 @@ class GitHub(object):
         return self.session.request(
             method, url, params=params, allow_redirects=True, **kwargs)
 
-    def request(self, method, resource, **kwargs):
+    def request(self, method, resource, all_pages=False, **kwargs):
         """
         Makes a request to the given endpoint.
         Keyword arguments are passed to the :meth:`~requests.request` method.
@@ -174,7 +174,7 @@ class GitHub(object):
 
         if response.headers['Content-Type'].startswith('application/json'):
             result = response.json()
-            while response.links.get('next'):
+            while response.links.get('next') and all_pages:
                 response = self.session.request(
                         method, response.links['next']['url'], **kwargs)
                 if not status_code.startswith('2'):

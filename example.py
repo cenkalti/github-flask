@@ -98,7 +98,7 @@ def authorized(access_token):
     db_session.commit()
 
     session['user_id'] = user.id
-    return redirect(url_for('index'))
+    return redirect(next_url)
 
 
 @app.route('/login')

@@ -172,7 +172,7 @@ class GitHub(object):
         if not status_code.startswith('2'):
             raise GitHubError(response)
 
-        if response.headers['Content-Type'].startswith('application/json'):
+        if 'Content-Type' in response.headers and response.headers['Content-Type'].startswith('application/json'):
             result = response.json()
             while response.links.get('next') and all_pages:
                 response = self.session.request(

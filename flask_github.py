@@ -81,6 +81,31 @@ class GitHub(object):
         """
         Redirect to GitHub and request access to a user's data.
 
+        :param scope: List of `Scopes`_ for which to request access, formatted
+                      as a string or comma delimited list of scopes as a
+                      string. Defaults to ``None``, resulting in granting
+                      read-only access to public information (includes public
+                      user profile info, public repository info, and gists).
+        :type scope: str
+        :param redirect_uri: `Redirect URL`_ to which to redirect the user
+                             after authentication. Defaults to ``None``,
+                             resulting in using the default redirect URL for
+                             the OAuth application as defined in GitHub.
+        :type redirect_uri: str
+
+        For example, if we wanted to use this method to get read/write access
+        to user profile information, in addition to read-write access to code,
+        commit status, etc., we would need to use the `Scopes`_ ``user`` and
+        ``repo`` when calling this method.
+
+        .. code-block:: python
+
+            github.authorize(scope="user,repo")
+
+
+        .. _Scopes: https://developer.github.com/v3/oauth/#scopes
+        .. _Redirect URL: https://developer.github.com/v3/oauth/#redirect-urls
+
         """
         _logger.debug("Called authorize()")
         params = {'client_id': self.client_id}

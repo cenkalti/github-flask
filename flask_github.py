@@ -34,8 +34,8 @@ GENERIC_MIMETYPE = 'application/octet-stream'
 def is_json_response(response):
     """Returns ``True`` if response ``Content-Type`` is JSON.
 
-    :param response: ``requests.Response`` object
-    :type response: ``requests.Response``
+    :param response: :class:~`requests.Response` object to check
+    :type response: :class:~`requests.Response`
     :returns: ``True`` if ``response`` is JSON, ``False`` otherwise
     :rtype bool:
     """
@@ -191,11 +191,9 @@ class GitHub(object):
         if params is None:
             params = {}
 
-        if 'access_token' not in params:
-            params['access_token'] = self.get_access_token()
-
-        # Set ``Authorization`` header
+        # Set ``Authorization`` header, ``access_token`` query parameter
         if self.get_access_token():
+            params.setdefault('access_token', self.get_access_token())
             kwargs.setdefault('headers', {})
             kwargs['headers'].setdefault('Authorization',
                                          'token %s' % self.get_access_token())
@@ -215,14 +213,12 @@ class GitHub(object):
         """
         response = self.raw_request(method, resource, **kwargs)
 
-        status_code = str(response.status_code)
-
-        if not status_code.startswith('2'):
+        if response.status_code >= 400:
             raise GitHubError(response)
 
         if is_json_response(response):
             result = response.json()
-            while response.links.get('next') and all_pages:
+            while all_pages and response.links.get('next'):
                 response = self.session.request(method,
                                                 response.links['next']['url'],
                                                 **kwargs)
@@ -242,10 +238,8 @@ class GitHub(object):
         """Shortcut for ``request('POST', resource)``.
         Use this to make POST request since it will also encode ``data`` to
         'application/json' format."""
-        headers = {'Content-Type': JSON_MIMETYPE}
-        if "headers" in kwargs:
-            headers.update(kwargs["headers"])
-            del kwargs["headers"]
+        headers = kwargs.pop('headers', {})
+        headers.setdefault('Content-Type', JSON_MIMETYPE)
         data = json.dumps(data)
         return self.request('POST', resource, headers=headers,
                             data=data, **kwargs)

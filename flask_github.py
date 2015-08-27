@@ -242,7 +242,7 @@ class GitHub(object):
         """Shortcut for ``request('POST', resource)``.
         Use this to make POST request since it will also encode ``data`` to
         'application/json' format."""
-        headers = {'Content-Type': 'application/json'}
+        headers = {'Content-Type': JSON_MIMETYPE}
         if "headers" in kwargs:
             headers.update(kwargs["headers"])
             del kwargs["headers"]

@@ -177,6 +177,12 @@ class GitHub(object):
         if 'access_token' not in params:
             params['access_token'] = self.get_access_token()
 
+        # Set ``Authorization`` header
+        if self.get_access_token():
+            kwargs.setdefault('headers', {})
+            kwargs['headers'].setdefault('Authorization',
+                                         'token %s' % self.get_access_token())
+
         url = self.base_url + resource
         return self.session.request(
             method, url, params=params, allow_redirects=True, **kwargs)

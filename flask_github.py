@@ -219,8 +219,8 @@ class GitHub(object):
     def post(self, resource, data, **kwargs):
         """Shortcut for ``request('POST', resource)``.
         Use this to make POST request since it will also encode ``data`` to
-        'application/x-www-form-urlencoded' format."""
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        'application/json' format."""
+        headers = {'Content-Type': 'application/json'}
         if "headers" in kwargs:
             headers.update(kwargs["headers"])
             del kwargs["headers"]

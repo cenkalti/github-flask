@@ -24,6 +24,23 @@ _logger = logging.getLogger(__name__)
 null_handler = logging.NullHandler()
 _logger.addHandler(null_handler)
 
+#: MIME type of JSON
+JSON_MIMETYPE = 'application/json'
+
+#: Generic (default) MIME type if response headers are not set
+GENERIC_MIMETYPE = 'application/octet-stream'
+
+
+def is_json_response(response):
+    """Returns ``True`` if response ``Content-Type`` is JSON.
+
+    :param response: ``requests.Response`` object
+    :type response: ``requests.Response``
+    :returns: ``True`` if ``response`` is JSON, ``False`` otherwise
+    :rtype bool:
+    """
+    content_type = response.headers.get('Content-Type', GENERIC_MIMETYPE)
+    return content_type.startswith(JSON_MIMETYPE)
 
 
 class GitHubError(Exception):
@@ -203,14 +220,13 @@ class GitHub(object):
         if not status_code.startswith('2'):
             raise GitHubError(response)
 
-        if 'Content-Type' in response.headers and response.headers['Content-Type'].startswith('application/json'):
+        if is_json_response(response):
             result = response.json()
             while response.links.get('next') and all_pages:
-                response = self.session.request(
-                        method, response.links['next']['url'], **kwargs)
-                if not status_code.startswith('2'):
-                    raise GitHubError(response)
-                if response.headers['Content-Type'].startswith('application/json'):
+                response = self.session.request(method,
+                                                response.links['next']['url'],
+                                                **kwargs)
+                if is_json_response(response):
                     result += response.json()
                 else:
                     raise GitHubError(response)

@@ -125,11 +125,21 @@ class GitHub(object):
                       string. Defaults to ``None``, resulting in granting
                       read-only access to public information (includes public
                       user profile info, public repository info, and gists).
+                      For more information on this, see the examples in
+                      presented in the GitHub API `Scopes`_ documentation, or
+                      see the examples provided below.
         :type scope: str
         :param redirect_uri: `Redirect URL`_ to which to redirect the user
                              after authentication. Defaults to ``None``,
                              resulting in using the default redirect URL for
-                             the OAuth application as defined in GitHub.
+                             the OAuth application as defined in GitHub.  This
+                             URL can differ from the callback URL defined in
+                             your GitHub application, however it must be a
+                             subdirectory of the specified callback URL,
+                             otherwise raises a :class:`GitHubError`.  For more
+                             information on this, see the examples in presented
+                             in the GitHub API `Redirect URL`_ documentation,
+                             or see the example provided below.
         :type redirect_uri: str
 
         For example, if we wanted to use this method to get read/write access
@@ -140,6 +150,16 @@ class GitHub(object):
         .. code-block:: python
 
             github.authorize(scope="user,repo")
+
+        Additionally, if we wanted to specify a different redirect URL
+        following authorization.
+
+        .. code-block:: python
+
+            # Our application's callback URL is "http://example.com/callback"
+            redirect_uri="http://example.com/callback/my/path"
+
+            github.authorize(scope="user,repo", redirect_uri=redirect_uri)
 
 
         .. _Scopes: https://developer.github.com/v3/oauth/#scopes

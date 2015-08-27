@@ -242,6 +242,7 @@ class GitHub(object):
                 response = self.session.request(method,
                                                 response.links['next']['url'],
                                                 **kwargs)
+                assert is_valid_response(response)
                 assert is_json_response(response, raise_error=True)
                 result += response.json()
             return result

@@ -31,16 +31,38 @@ JSON_MIMETYPE = 'application/json'
 GENERIC_MIMETYPE = 'application/octet-stream'
 
 
-def is_json_response(response):
+def is_valid_response(response):
+    """Returns ``True`` if response ``status_code`` is not an error type,
+    raises :class:`GitHubError` otherwise.
+
+    :param response: :class:~`requests.Response` object to check
+    :type response: :class:~`requests.Response`
+    :returns: ``True`` if response ``status_code`` is not an error type,
+              ``False`` otherwise.
+    :rtype bool:
+    """
+    if response.status_code < 400:
+        return True
+    raise GitHubError(response)
+
+
+def is_json_response(response, raise_error=False):
     """Returns ``True`` if response ``Content-Type`` is JSON.
 
     :param response: :class:~`requests.Response` object to check
     :type response: :class:~`requests.Response`
+    :param raise_error: Whether or not to raise :class:`GitHubError` if
+                        ``response`` is not of type JSON. Defaults to
+                        ``False``.
+    :type raise_error: bool
     :returns: ``True`` if ``response`` is JSON, ``False`` otherwise
     :rtype bool:
     """
     content_type = response.headers.get('Content-Type', GENERIC_MIMETYPE)
-    return content_type.startswith(JSON_MIMETYPE)
+    is_json = content_type.startswith(JSON_MIMETYPE)
+    if is_json or not raise_error:
+        return is_json
+    raise GitHubError(response)
 
 
 class GitHubError(Exception):
@@ -212,9 +234,7 @@ class GitHub(object):
 
         """
         response = self.raw_request(method, resource, **kwargs)
-
-        if response.status_code >= 400:
-            raise GitHubError(response)
+        assert is_valid_response(response)
 
         if is_json_response(response):
             result = response.json()
@@ -222,10 +242,8 @@ class GitHub(object):
                 response = self.session.request(method,
                                                 response.links['next']['url'],
                                                 **kwargs)
-                if is_json_response(response):
-                    result += response.json()
-                else:
-                    raise GitHubError(response)
+                assert is_json_response(response, raise_error=True)
+                result += response.json()
             return result
         else:
             return response

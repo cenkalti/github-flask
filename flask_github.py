@@ -41,28 +41,22 @@ def is_valid_response(response):
               ``False`` otherwise.
     :rtype bool:
     """
-    if response.status_code < 400:
-        return True
-    raise GitHubError(response)
+    # TODO Limit error responses to those without a 200 status code?
+    #
+    # See https://github.com/cenkalti/github-flask/pull/19#discussion_r38231911
+    return response.status_code < 400
 
 
-def is_json_response(response, raise_error=False):
+def is_json_response(response):
     """Returns ``True`` if response ``Content-Type`` is JSON.
 
     :param response: :class:~`requests.Response` object to check
     :type response: :class:~`requests.Response`
-    :param raise_error: Whether or not to raise :class:`GitHubError` if
-                        ``response`` is not of type JSON. Defaults to
-                        ``False``.
-    :type raise_error: bool
     :returns: ``True`` if ``response`` is JSON, ``False`` otherwise
     :rtype bool:
     """
-    content_type = response.headers.get('Content-Type', GENERIC_MIMETYPE)
-    is_json = content_type.startswith(JSON_MIMETYPE)
-    if is_json or not raise_error:
-        return is_json
-    raise GitHubError(response)
+    return response.headers.get('Content-Type',
+                                GENERIC_MIMETYPE).startswith(JSON_MIMETYPE)
 
 
 class GitHubError(Exception):
@@ -224,25 +218,26 @@ class GitHub(object):
     def _handle_invalid_response(self):
         pass
 
-    def raw_request(self, method, resource, params=None, **kwargs):
+    def raw_request(self, method, resource, **kwargs):
         """
         Makes a HTTP request and returns the raw
         :class:`~requests.Response` object.
 
         """
-        if params is None:
-            params = {}
+        params = kwargs.pop('params', {})
+
+        access_token = params.setdefault('access_token',
+                                         self.get_access_token())
 
         # Set ``Authorization`` header, ``access_token`` query parameter
-        if self.get_access_token():
-            params.setdefault('access_token', self.get_access_token())
+        if access_token:
             kwargs.setdefault('headers', {})
             kwargs['headers'].setdefault('Authorization',
-                                         'token %s' % self.get_access_token())
+                                         'token %s' % access_token)
 
         url = self.base_url + resource
-        return self.session.request(
-            method, url, params=params, allow_redirects=True, **kwargs)
+        return self.session.request(method, url, params=params,
+                                    allow_redirects=True, **kwargs)
 
     def request(self, method, resource, all_pages=False, **kwargs):
         """
@@ -254,7 +249,9 @@ class GitHub(object):
 
         """
         response = self.raw_request(method, resource, **kwargs)
-        assert is_valid_response(response)
+
+        if not is_valid_response(response):
+            raise GitHubError(response)
 
         if is_json_response(response):
             result = response.json()
@@ -262,8 +259,9 @@ class GitHub(object):
                 response = self.session.request(method,
                                                 response.links['next']['url'],
                                                 **kwargs)
-                assert is_valid_response(response)
-                assert is_json_response(response, raise_error=True)
+                if not is_valid_response(response) or \
+                        not is_json_response(response):
+                    raise GitHubError(response)
                 result += response.json()
             return result
         else:

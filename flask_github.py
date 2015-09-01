@@ -33,7 +33,7 @@ GENERIC_MIMETYPE = 'application/octet-stream'
 
 def is_valid_response(response):
     """Returns ``True`` if response ``status_code`` is not an error type,
-    raises :class:`GitHubError` otherwise.
+    returns ``False`` otherwise.
 
     :param response: :class:~`requests.Response` object to check
     :type response: :class:~`requests.Response`

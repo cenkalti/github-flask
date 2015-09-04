@@ -214,20 +214,13 @@ class GitHub(object):
         :class:`~requests.Response` object.
 
         """
-        params = kwargs.pop('params', {})
-
-        access_token = params.setdefault('access_token',
-                                         self.get_access_token())
-
-        # Set ``Authorization`` header, ``access_token`` query parameter
-        if access_token:
-            kwargs.setdefault('headers', {})
-            kwargs['headers'].setdefault('Authorization',
-                                         'token %s' % access_token)
+        # Set ``Authorization`` header
+        kwargs.setdefault('headers', {})
+        kwargs['headers'].setdefault('Authorization',
+                                     'token %s' % self.get_access_token())
 
         url = self.base_url + resource
-        return self.session.request(method, url, params=params,
-                                    allow_redirects=True, **kwargs)
+        return self.session.request(method, url, allow_redirects=True, **kwargs)
 
     def request(self, method, resource, all_pages=False, **kwargs):
         """

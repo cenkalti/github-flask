@@ -24,12 +24,6 @@ _logger = logging.getLogger(__name__)
 null_handler = logging.NullHandler()
 _logger.addHandler(null_handler)
 
-#: MIME type of JSON
-JSON_MIMETYPE = 'application/json'
-
-#: Generic (default) MIME type if response headers are not set
-GENERIC_MIMETYPE = 'application/octet-stream'
-
 
 def is_valid_response(response):
     """Returns ``True`` if response ``status_code`` is not an error type,
@@ -55,8 +49,7 @@ def is_json_response(response):
     :returns: ``True`` if ``response`` is JSON, ``False`` otherwise
     :rtype bool:
     """
-    return response.headers.get('Content-Type',
-                                GENERIC_MIMETYPE).startswith(JSON_MIMETYPE)
+    return response.headers.get('Content-Type', '') == 'application/json'
 
 
 class GitHubError(Exception):
@@ -276,7 +269,7 @@ class GitHub(object):
         Use this to make POST request since it will also encode ``data`` to
         'application/json' format."""
         headers = kwargs.pop('headers', {})
-        headers.setdefault('Content-Type', JSON_MIMETYPE)
+        headers.setdefault('Content-Type', 'application/json')
         data = json.dumps(data)
         return self.request('POST', resource, headers=headers,
                             data=data, **kwargs)

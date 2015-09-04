@@ -35,10 +35,7 @@ def is_valid_response(response):
               ``False`` otherwise.
     :rtype bool:
     """
-    # TODO Limit error responses to those without a 200 status code?
-    #
-    # See https://github.com/cenkalti/github-flask/pull/19#discussion_r38231911
-    return response.status_code < 400
+    return 200 <= response.status_code <= 299
 
 
 def is_json_response(response):

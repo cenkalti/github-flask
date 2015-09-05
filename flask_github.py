@@ -208,7 +208,7 @@ class GitHub(object):
     def _handle_invalid_response(self):
         pass
 
-    def raw_request(self, method, resource, **kwargs):
+    def raw_request(self, method, resource, access_token=None, **kwargs):
         """
         Makes a HTTP request and returns the raw
         :class:`~requests.Response` object.
@@ -216,8 +216,9 @@ class GitHub(object):
         """
         # Set ``Authorization`` header
         kwargs.setdefault('headers', {})
-        kwargs['headers'].setdefault('Authorization',
-                                     'token %s' % self.get_access_token())
+        if access_token is None:
+            access_token = self.get_access_token()
+        kwargs['headers'].setdefault('Authorization', 'token %s' % access_token)
 
         url = self.base_url + resource
         return self.session.request(method, url, allow_redirects=True, **kwargs)

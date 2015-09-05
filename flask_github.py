@@ -24,12 +24,6 @@ _logger = logging.getLogger(__name__)
 null_handler = logging.NullHandler()
 _logger.addHandler(null_handler)
 
-#: MIME type of JSON
-JSON_MIMETYPE = 'application/json'
-
-#: Generic (default) MIME type if response headers are not set
-GENERIC_MIMETYPE = 'application/octet-stream'
-
 
 def is_valid_response(response):
     """Returns ``True`` if response ``status_code`` is not an error type,
@@ -41,10 +35,7 @@ def is_valid_response(response):
               ``False`` otherwise.
     :rtype bool:
     """
-    # TODO Limit error responses to those without a 200 status code?
-    #
-    # See https://github.com/cenkalti/github-flask/pull/19#discussion_r38231911
-    return response.status_code < 400
+    return 200 <= response.status_code <= 299
 
 
 def is_json_response(response):
@@ -55,8 +46,7 @@ def is_json_response(response):
     :returns: ``True`` if ``response`` is JSON, ``False`` otherwise
     :rtype bool:
     """
-    return response.headers.get('Content-Type',
-                                GENERIC_MIMETYPE).startswith(JSON_MIMETYPE)
+    return response.headers.get('Content-Type', '') == 'application/json'
 
 
 class GitHubError(Exception):
@@ -224,20 +214,13 @@ class GitHub(object):
         :class:`~requests.Response` object.
 
         """
-        params = kwargs.pop('params', {})
-
-        access_token = params.setdefault('access_token',
-                                         self.get_access_token())
-
-        # Set ``Authorization`` header, ``access_token`` query parameter
-        if access_token:
-            kwargs.setdefault('headers', {})
-            kwargs['headers'].setdefault('Authorization',
-                                         'token %s' % access_token)
+        # Set ``Authorization`` header
+        kwargs.setdefault('headers', {})
+        kwargs['headers'].setdefault('Authorization',
+                                     'token %s' % self.get_access_token())
 
         url = self.base_url + resource
-        return self.session.request(method, url, params=params,
-                                    allow_redirects=True, **kwargs)
+        return self.session.request(method, url, allow_redirects=True, **kwargs)
 
     def request(self, method, resource, all_pages=False, **kwargs):
         """
@@ -276,7 +259,7 @@ class GitHub(object):
         Use this to make POST request since it will also encode ``data`` to
         'application/json' format."""
         headers = kwargs.pop('headers', {})
-        headers.setdefault('Content-Type', JSON_MIMETYPE)
+        headers.setdefault('Content-Type', 'application/json')
         data = json.dumps(data)
         return self.request('POST', resource, headers=headers,
                             data=data, **kwargs)

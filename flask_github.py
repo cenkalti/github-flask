@@ -46,7 +46,8 @@ def is_json_response(response):
     :returns: ``True`` if ``response`` is JSON, ``False`` otherwise
     :rtype bool:
     """
-    return response.headers.get('Content-Type', '') == 'application/json'
+    content_type = response.headers.get('Content-Type', '')
+    return content_type == 'application/json' or content_type.startswith('application/json;')
 
 
 class GitHubError(Exception):

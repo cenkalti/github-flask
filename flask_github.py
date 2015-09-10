@@ -17,7 +17,7 @@ from functools import wraps
 import requests
 from flask import redirect, request, json
 
-__version__ = '3.0.0'
+__version__ = '3.0.1'
 
 _logger = logging.getLogger(__name__)
 # Add NullHandler to prevent logging warnings on startup

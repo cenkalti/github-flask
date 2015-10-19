@@ -101,7 +101,7 @@ class GitHub(object):
     def get_access_token(self):
         raise NotImplementedError
 
-    def authorize(self, scope=None, redirect_uri=None):
+    def authorize(self, scope=None, redirect_uri=None, state=None):
         """
         Redirect to GitHub and request access to a user's data.
 
@@ -126,6 +126,9 @@ class GitHub(object):
                              in the GitHub API `Redirect URL`_ documentation,
                              or see the example provided below.
         :type redirect_uri: str
+        :param state: An unguessable random string. It is used to protect
+                      against cross-site request forgery attacks.
+        :type state: str
 
         For example, if we wanted to use this method to get read/write access
         to user profile information, in addition to read-write access to code,
@@ -157,6 +160,8 @@ class GitHub(object):
             params['scope'] = scope
         if redirect_uri:
             params['redirect_uri'] = redirect_uri
+        if state:
+            params['state'] = state
 
         url = self.auth_url + 'authorize?' + urlencode(params)
         _logger.debug("Redirecting to %s", url)

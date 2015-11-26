@@ -1,4 +1,3 @@
-import sys
 import logging
 import unittest
 
@@ -79,7 +78,7 @@ class ConditionalRequestsTestCase(unittest.TestCase):
 
         @github.access_token_getter
         def access_token():
-            return 'a8cf69512ab070ebae6563b735fdb9ca6e19073a'
+            return ''
 
         # no headers
         with self.assertRaises(AccessControlError):

@@ -112,6 +112,53 @@ class ConditionalRequestsTestCase(unittest.TestCase):
         assert github.rate_limit == rate_limit
 
 
+class SinceIdTestCase(unittest.TestCase):
+
+    def test_since(self):
+        # logger.info('testing etag...')
+
+        app = Flask(__name__)
+        app.config['GITHUB_CLIENT_ID'] = '123'
+        app.config['GITHUB_CLIENT_SECRET'] = 'SEKRET'
+
+        github = GitHub(app)
+
+        @github.access_token_getter
+        def access_token():
+            return 'a8cf69512ab070ebae6563b735fdb9ca6e19073a'
+
+        # no headers
+        with self.assertRaises(AccessControlError):
+            github.etag
+        # logger.warn('exception thrown')
+
+        # make normal request
+        res = github.get('user')
+        # logger.info('first res {}'.format(len(res)))
+        assert len(res) > 0
+
+        rate_limit = github.rate_limit
+        # logger.info('rate limit {} {}'.format(type(rate_limit), rate_limit))
+        assert rate_limit < 5000
+
+        res = github.get('user', etag=github.etag)
+        # logger.info('etag value {}'.format(github.etag))
+        # logger.info('etag res {}'.format(type(res)))
+        assert res is None
+
+        # logger.info('rate limit {}'.format(github.rate_limit))
+        assert github.rate_limit == rate_limit
+        rate_limit = github.rate_limit
+
+        res = github.get('user', last_modified=github.last_modified)
+        # logger.info('lm value {}'.format(github.last_modified))
+        # logger.info('lm res {}'.format(type(res)))
+        assert res is None
+
+        # logger.info('rate limit {}'.format(github.rate_limit))
+        assert github.rate_limit == rate_limit
+
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     unittest.main()

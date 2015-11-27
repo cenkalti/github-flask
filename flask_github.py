@@ -7,6 +7,7 @@
 
 """
 import logging
+
 try:
     from urllib.parse import urlencode, parse_qs
 except ImportError:
@@ -194,6 +195,7 @@ class GitHub(object):
         or passed in during authorization.
 
         """
+
         @wraps(f)
         def decorated(*args, **kwargs):
             if 'code' in request.args:
@@ -201,6 +203,7 @@ class GitHub(object):
             else:
                 data = self._handle_invalid_response()
             return f(*((data,) + args), **kwargs)
+
         return decorated
 
     def _handle_response(self):
@@ -254,7 +257,7 @@ class GitHub(object):
         self.last_response = res
         return res
 
-    def request(self, method, resource, all_pages=False, **kwargs):
+    def request(self, method, resource, all_pages=False, since_id=None, **kwargs):
         """
         Makes a request to the given endpoint.
         Keyword arguments are passed to the :meth:`~requests.request` method.
@@ -274,14 +277,20 @@ class GitHub(object):
 
         if is_json_response(response):
             result = response.json()
+            if since_id:
+                all_pages = True
+                result_filtered = [i for i in result if i['id'] > since_id]
+                if len(result_filtered) != len(result):
+                    return result_filtered
             while all_pages and response.links.get('next'):
-                response = self.session.request(method,
-                                                response.links['next']['url'],
-                                                **kwargs)
-                if not is_valid_response(response) or \
-                        not is_json_response(response):
+                response = self.session.request(method, response.links['next']['url'], **kwargs)
+                if not is_valid_response(response) or not is_json_response(response):
                     raise GitHubError(response)
                 result += response.json()
+                if since_id:
+                    result_filtered = [i for i in result if i['id'] > since_id]
+                    if len(result_filtered) != len(result):
+                        return result_filtered
             return result
         else:
             return response

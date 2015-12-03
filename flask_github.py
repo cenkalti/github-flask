@@ -317,7 +317,8 @@ class GitHub(object):
             raise AccessControlError('No response (no request was made to Github)')
 
         if header not in self.last_response.headers:
-            raise AccessControlError('Header "{}" not in last response from Github'.format(header))
+            # raise AccessControlError('Header "{}" not in last response from Github'.format(header))
+            return None
 
         return self.last_response.headers[header]
 

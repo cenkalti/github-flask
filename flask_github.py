@@ -237,7 +237,7 @@ class GitHub(object):
     def _handle_invalid_response(self):
         pass
 
-    def raw_request(self, method, resource, access_token=None, etag=None, last_modified=None, **kwargs):
+    def raw_request(self, method, resource, etag=None, last_modified=None, access_token=None, **kwargs):
         """
         Makes a HTTP request and returns the raw
         :class:`~requests.Response` object.
@@ -257,7 +257,7 @@ class GitHub(object):
         self.last_response = res
         return res
 
-    def request(self, method, resource, all_pages=False, etag=None, last_modified=None, **kwargs):
+    def request(self, method, resource, all_pages=False, **kwargs):
         """
         Makes a request to the given endpoint.
         Keyword arguments are passed to the :meth:`~requests.request` method.
@@ -267,6 +267,11 @@ class GitHub(object):
         Otherwise the :class:`~requests.Response` object is returned.
 
         """
+        # extract access control headers
+        # removed for pagination
+        etag = kwargs.pop('etag', None)
+        last_modified = kwargs.pop('last_modified', None)
+
         response = self.raw_request(method, resource, etag, last_modified, **kwargs)
 
         if is_not_modified_response(response):
@@ -283,8 +288,7 @@ class GitHub(object):
                     response.links['next']['url'],
                     **kwargs
                 )
-                if not is_valid_response(response) or \
-                        not is_json_response(response):
+                if not is_valid_response(response) or not is_json_response(response):
                     raise GitHubError(response)
                 result += response.json()
             return result

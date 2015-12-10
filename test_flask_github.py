@@ -85,6 +85,8 @@ class ConditionalRequestsTestCase(unittest.TestCase):
             github.etag
         # logger.warn('exception thrown')
 
+        # todo force/check pagination
+
         # make normal request
         res = github.get('user')
         # logger.info('first res {}'.format(len(res)))

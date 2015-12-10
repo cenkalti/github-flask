@@ -134,6 +134,40 @@ They will return a dictionary representation of the given API endpoint.
         return str(repo_dict)
 
 
+Conditional Requests
+------------------
+
+The headers of the last request is kept in order to get the access
+control headers. The following properties will return the values
+from the headers after a request was made:
+
+- etag              # str
+- last_modified     # str
+- rate_limit        # int
+
+The etag and/or last_modified can be passed as arguments to subsequent
+requests. last_modified will be returned as a string and the argument
+needs to be a string - no parsing to and from datetime will be done. If
+the response is 304 Not Modified, `None` will be returned. Example:
+
+.. code-block:: python
+
+    res = github.get('events')                          # 30 items
+    last_events_etag = github.etag
+    print github.rate_limit                             # 4986
+    res = github.get('events', etag=last_events_etag)   # None (not empty list)
+    print github.rate_limit                             # 4986
+
+    # same for Last Modified
+    res = github.get('events')
+    last_events_modified = github.last_modified
+    res = github.get('events', last_modified=last_events_modified)
+
+
+Rate limit will have the requests quantity left. As only the last response
+is kept this will not be viable for concurrent systems.
+
+
 Full Example
 ------------
 

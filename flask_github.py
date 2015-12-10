@@ -7,6 +7,7 @@
 
 """
 import logging
+
 try:
     from urllib.parse import urlencode, parse_qs
 except ImportError:
@@ -19,6 +20,7 @@ from flask import redirect, request, json
 
 __version__ = '3.1.0'
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)-5s - %(name)-12s - %(message)s')
 _logger = logging.getLogger(__name__)
 # Add NullHandler to prevent logging warnings on startup
 null_handler = logging.NullHandler()
@@ -36,6 +38,19 @@ def is_valid_response(response):
     :rtype bool:
     """
     return 200 <= response.status_code <= 299
+
+
+def is_not_modified_response(response):
+    """Returns ``True`` if response ``status_code`` is 304
+    returns ``False`` otherwise.
+
+    :param response: :class:~`requests.Response` object to check
+    :type response: :class:~`requests.Response`
+    :returns: ``True`` if response ``status_code`` is 304
+              ``False`` otherwise.
+    :rtype bool:
+    """
+    return response.status_code == 304
 
 
 def is_json_response(response):
@@ -66,6 +81,11 @@ class GitHubError(Exception):
         return self.args[0]
 
 
+class AccessControlError(Exception):
+    '''Raised for invalid access control headers'''
+    pass
+
+
 class GitHub(object):
     """
     Provides decorators for authenticating users with GitHub within a Flask
@@ -76,6 +96,7 @@ class GitHub(object):
     BASE_AUTH_URL = 'https://github.com/login/oauth/'
 
     def __init__(self, app=None):
+        self.last_response = {}
         if app is not None:
             self.app = app
             self.init_app(self.app)
@@ -174,6 +195,7 @@ class GitHub(object):
         or passed in during authorization.
 
         """
+
         @wraps(f)
         def decorated(*args, **kwargs):
             if 'code' in request.args:
@@ -181,6 +203,7 @@ class GitHub(object):
             else:
                 data = self._handle_invalid_response()
             return f(*((data,) + args), **kwargs)
+
         return decorated
 
     def _handle_response(self):
@@ -214,31 +237,28 @@ class GitHub(object):
     def _handle_invalid_response(self):
         pass
 
-    def raw_request(self, method, resource, access_token=None, **kwargs):
-        """
-        Makes a HTTP request and returns the raw
-        :class:`~requests.Response` object.
-
-        """
-        # Set ``Authorization`` header
-        kwargs.setdefault('headers', {})
-        if access_token is None:
-            access_token = self.get_access_token()
-        kwargs['headers'].setdefault('Authorization', 'token %s' % access_token)
-
-        url = self.base_url + resource
-        return self.session.request(method, url, allow_redirects=True, **kwargs)
-
     def request(self, method, resource, all_pages=False, **kwargs):
         """
         Makes a request to the given endpoint.
         Keyword arguments are passed to the :meth:`~requests.request` method.
+        If the status code is 304 Not Modified, None is returned.
         If the content type of the response is JSON, it will be decoded
         automatically and a dictionary will be returned.
         Otherwise the :class:`~requests.Response` object is returned.
 
         """
-        response = self.raw_request(method, resource, **kwargs)
+        # Set headers
+        kwargs.setdefault('headers', {})
+        kwargs['headers'].setdefault('Authorization', 'token {}'.format(kwargs.pop('access_token', self.get_access_token())))
+        kwargs['headers'].setdefault('If-None-Match', kwargs.pop('etag', None))
+        kwargs['headers'].setdefault('If-Modified-Since', kwargs.pop('last_modified', None))
+
+        url = self.base_url + resource
+        response = self.session.request(method, url, allow_redirects=True, **kwargs)
+        self.last_response = response
+
+        if is_not_modified_response(response):
+            return None
 
         if not is_valid_response(response):
             raise GitHubError(response)
@@ -246,11 +266,12 @@ class GitHub(object):
         if is_json_response(response):
             result = response.json()
             while all_pages and response.links.get('next'):
-                response = self.session.request(method,
-                                                response.links['next']['url'],
-                                                **kwargs)
-                if not is_valid_response(response) or \
-                        not is_json_response(response):
+                response = self.session.request(
+                    method,
+                    response.links['next']['url'],
+                    **kwargs
+                )
+                if not is_valid_response(response) or not is_json_response(response):
                     raise GitHubError(response)
                 result += response.json()
             return result
@@ -282,3 +303,25 @@ class GitHub(object):
 
     def delete(self, resource, **kwargs):
         return self.request('DELETE', resource, **kwargs)
+
+    def return_header(self, header):
+        if not self.last_response:
+            raise AccessControlError('No response (no request was made to Github)')
+
+        if header not in self.last_response.headers:
+            # raise AccessControlError('Header "{}" not in last response from Github'.format(header))
+            return None
+
+        return self.last_response.headers[header]
+
+    @property
+    def etag(self):
+        return self.return_header('ETag')
+
+    @property
+    def last_modified(self):
+        return self.return_header('Last-Modified')
+
+    @property
+    def rate_limit(self):
+        return int(self.return_header('X-RateLimit-Remaining'))

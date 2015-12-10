@@ -237,26 +237,6 @@ class GitHub(object):
     def _handle_invalid_response(self):
         pass
 
-    def raw_request(self, method, resource, etag=None, last_modified=None, access_token=None, **kwargs):
-        """
-        Makes a HTTP request and returns the raw
-        :class:`~requests.Response` object.
-
-        """
-        if access_token is None:
-            access_token = self.get_access_token()
-
-        # Set headers
-        kwargs.setdefault('headers', {})
-        kwargs['headers'].setdefault('Authorization', 'token %s' % access_token)
-        kwargs['headers'].setdefault('If-None-Match', etag)
-        kwargs['headers'].setdefault('If-Modified-Since', last_modified)
-
-        url = self.base_url + resource
-        res = self.session.request(method, url, allow_redirects=True, **kwargs)
-        self.last_response = res
-        return res
-
     def request(self, method, resource, all_pages=False, **kwargs):
         """
         Makes a request to the given endpoint.
@@ -267,12 +247,15 @@ class GitHub(object):
         Otherwise the :class:`~requests.Response` object is returned.
 
         """
-        # extract access control headers
-        # removed for pagination
-        etag = kwargs.pop('etag', None)
-        last_modified = kwargs.pop('last_modified', None)
+        # Set headers
+        kwargs.setdefault('headers', {})
+        kwargs['headers'].setdefault('Authorization', 'token {}'.format(kwargs.pop('access_token', self.get_access_token())))
+        kwargs['headers'].setdefault('If-None-Match', kwargs.pop('etag', None))
+        kwargs['headers'].setdefault('If-Modified-Since', kwargs.pop('last_modified', None))
 
-        response = self.raw_request(method, resource, etag, last_modified, **kwargs)
+        url = self.base_url + resource
+        response = self.session.request(method, url, allow_redirects=True, **kwargs)
+        self.last_response = response
 
         if is_not_modified_response(response):
             return None

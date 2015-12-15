@@ -226,7 +226,10 @@ class GitHub(object):
             access_token = self.get_access_token()
         kwargs['headers'].setdefault('Authorization', 'token %s' % access_token)
 
-        url = self.base_url + resource
+        if resource.startswith("https://") or resource.startswith("http://"):
+            url = resource
+        else:
+            url = self.base_url + resource
         return self.session.request(method, url, allow_redirects=True, **kwargs)
 
     def request(self, method, resource, all_pages=False, **kwargs):
@@ -246,9 +249,8 @@ class GitHub(object):
         if is_json_response(response):
             result = response.json()
             while all_pages and response.links.get('next'):
-                response = self.session.request(method,
-                                                response.links['next']['url'],
-                                                **kwargs)
+                url = response.links['next']['url']
+                response = self.raw_request(method, url, **kwargs)
                 if not is_valid_response(response) or \
                         not is_json_response(response):
                     raise GitHubError(response)

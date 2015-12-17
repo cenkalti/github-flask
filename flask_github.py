@@ -214,7 +214,7 @@ class GitHub(object):
     def _handle_invalid_response(self):
         pass
 
-    def raw_request(self, method, resource, access_token=None, **kwargs):
+    def raw_request(self, method, url, access_token=None, **kwargs):
         """
         Makes a HTTP request and returns the raw
         :class:`~requests.Response` object.
@@ -226,7 +226,6 @@ class GitHub(object):
             access_token = self.get_access_token()
         kwargs['headers'].setdefault('Authorization', 'token %s' % access_token)
 
-        url = self.base_url + resource
         return self.session.request(method, url, allow_redirects=True, **kwargs)
 
     def request(self, method, resource, all_pages=False, **kwargs):
@@ -238,7 +237,7 @@ class GitHub(object):
         Otherwise the :class:`~requests.Response` object is returned.
 
         """
-        response = self.raw_request(method, resource, **kwargs)
+        response = self.raw_request(method, self.base_url + resource, **kwargs)
 
         if not is_valid_response(response):
             raise GitHubError(response)
@@ -246,9 +245,9 @@ class GitHub(object):
         if is_json_response(response):
             result = response.json()
             while all_pages and response.links.get('next'):
-                response = self.session.request(method,
-                                                response.links['next']['url'],
-                                                **kwargs)
+                response = self.raw_request(method,
+                                            response.links['next']['url'],
+                                            **kwargs)
                 if not is_valid_response(response) or \
                         not is_json_response(response):
                     raise GitHubError(response)

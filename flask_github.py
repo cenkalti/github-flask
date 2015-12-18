@@ -226,7 +226,7 @@ class GitHub(object):
             access_token = self.get_access_token()
         kwargs['headers'].setdefault('Authorization', 'token %s' % access_token)
 
-        if resource.startswith("https://") or resource.startswith("http://"):
+        if resource.startswith(("http://", "https://")):
             url = resource
         else:
             url = self.base_url + resource

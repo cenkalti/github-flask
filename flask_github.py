@@ -254,7 +254,13 @@ class GitHub(object):
                 if not is_valid_response(response) or \
                         not is_json_response(response):
                     raise GitHubError(response)
-                result += response.json()
+                body = response.json()
+                if isinstance(body, list):
+                    result += body
+                elif isinstance(body, dict) and 'items' in body:
+                    result['items'] += body['items']
+                else:
+                    raise GitHubError(response)
             return result
         else:
             return response

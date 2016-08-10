@@ -273,7 +273,7 @@ class GitHub(object):
         """Shortcut for ``request('POST', resource)``.
         Use this to make POST request since it will also encode ``data`` to
         'application/json' format."""
-        headers = kwargs.pop('headers', {})
+        headers = dict(kwargs.pop('headers', {}))
         headers.setdefault('Content-Type', 'application/json')
         data = json.dumps(data)
         return self.request('POST', resource, headers=headers,

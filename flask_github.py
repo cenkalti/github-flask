@@ -265,11 +265,11 @@ class GitHub(object):
         else:
             return response
 
-    def get(self, resource, **kwargs):
+    def get(self, resource, params=None, **kwargs):
         """Shortcut for ``request('GET', resource)``."""
-        return self.request('GET', resource, **kwargs)
+        return self.request('GET', resource, params=None, **kwargs)
 
-    def post(self, resource, data, **kwargs):
+    def post(self, resource, data=None, **kwargs):
         """Shortcut for ``request('POST', resource)``.
         Use this to make POST request since it will also encode ``data`` to
         'application/json' format."""
@@ -282,11 +282,19 @@ class GitHub(object):
     def head(self, resource, **kwargs):
         return self.request('HEAD', resource, **kwargs)
 
-    def patch(self, resource, **kwargs):
-        return self.request('PATCH', resource, **kwargs)
+    def patch(self, resource, data=None, **kwargs):
+        headers = dict(kwargs.pop('headers', {}))
+        headers.setdefault('Content-Type', 'application/json')
+        data = json.dumps(data)
+        return self.request('PATCH', resource, headers=headers,
+                            data=data, **kwargs)
 
-    def put(self, resource, **kwargs):
-        return self.request('PUT', resource, **kwargs)
+    def put(self, resource, data=None, **kwargs):
+        headers = dict(kwargs.pop('headers', {}))
+        headers.setdefault('Content-Type', 'application/json')
+        data = json.dumps(data)
+        return self.request('PUT', resource, headers=headers,
+                            data=data, **kwargs)
 
     def delete(self, resource, **kwargs):
         return self.request('DELETE', resource, **kwargs)

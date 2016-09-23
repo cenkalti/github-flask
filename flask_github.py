@@ -267,7 +267,7 @@ class GitHub(object):
 
     def get(self, resource, params=None, **kwargs):
         """Shortcut for ``request('GET', resource)``."""
-        return self.request('GET', resource, params=None, **kwargs)
+        return self.request('GET', resource, params=params, **kwargs)
 
     def post(self, resource, data=None, **kwargs):
         """Shortcut for ``request('POST', resource)``.

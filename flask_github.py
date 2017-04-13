@@ -224,6 +224,7 @@ class GitHub(object):
         kwargs.setdefault('headers', {})
         if access_token is None:
             access_token = self.get_access_token()
+        kwargs['headers'] = kwargs['headers'].copy()
         kwargs['headers'].setdefault('Authorization', 'token %s' % access_token)
 
         if resource.startswith(("http://", "https://")):

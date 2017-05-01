@@ -220,18 +220,29 @@ class GitHub(object):
         :class:`~requests.Response` object.
 
         """
-        # Set ``Authorization`` header
-        kwargs.setdefault('headers', {})
+        headers = self._pop_headers(kwargs)
+        headers['Authorization'] = self._get_authorization_header(access_token)
+        url = self._get_resource_url(resource)
+        return self.session.request(method, url, allow_redirects=True, headers=headers, **kwargs)
+
+    def _pop_headers(self, kwargs):
+        try:
+            headers = kwargs.pop('headers')
+        except KeyError:
+            return {}
+        if headers is None:
+            return {}
+        return headers.copy()
+
+    def _get_authorization_header(self, access_token):
         if access_token is None:
             access_token = self.get_access_token()
-        kwargs['headers'] = kwargs['headers'].copy()
-        kwargs['headers'].setdefault('Authorization', 'token %s' % access_token)
+        return 'token %s' % access_token
 
+    def _get_resource_url(self, resource):
         if resource.startswith(("http://", "https://")):
-            url = resource
-        else:
-            url = self.base_url + resource
-        return self.session.request(method, url, allow_redirects=True, **kwargs)
+            return resource
+        return self.base_url + resource
 
     def request(self, method, resource, all_pages=False, **kwargs):
         """

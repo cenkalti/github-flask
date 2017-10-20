@@ -7,7 +7,7 @@
 """
 from flask import Flask, request, g, session, redirect, url_for
 from flask import render_template_string
-from flask.ext.github import GitHub
+from flask_github import GitHub
 
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import scoped_session, sessionmaker

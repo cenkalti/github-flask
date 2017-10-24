@@ -17,7 +17,7 @@ from functools import wraps
 import requests
 from flask import redirect, request, json
 
-__version__ = '2.1.1'
+__version__ = '3.1.7'
 
 _logger = logging.getLogger(__name__)
 # Add NullHandler to prevent logging warnings on startup
@@ -46,7 +46,8 @@ def is_json_response(response):
     :returns: ``True`` if ``response`` is JSON, ``False`` otherwise
     :rtype bool:
     """
-    return response.headers.get('Content-Type', '') == 'application/json'
+    content_type = response.headers.get('Content-Type', '')
+    return content_type == 'application/json' or content_type.startswith('application/json;')
 
 
 class GitHubError(Exception):
@@ -100,7 +101,7 @@ class GitHub(object):
     def get_access_token(self):
         raise NotImplementedError
 
-    def authorize(self, scope=None, redirect_uri=None):
+    def authorize(self, scope=None, redirect_uri=None, state=None):
         """
         Redirect to GitHub and request access to a user's data.
 
@@ -125,6 +126,9 @@ class GitHub(object):
                              in the GitHub API `Redirect URL`_ documentation,
                              or see the example provided below.
         :type redirect_uri: str
+        :param state: An unguessable random string. It is used to protect
+                      against cross-site request forgery attacks.
+        :type state: str
 
         For example, if we wanted to use this method to get read/write access
         to user profile information, in addition to read-write access to code,
@@ -156,6 +160,8 @@ class GitHub(object):
             params['scope'] = scope
         if redirect_uri:
             params['redirect_uri'] = redirect_uri
+        if state:
+            params['state'] = state
 
         url = self.auth_url + 'authorize?' + urlencode(params)
         _logger.debug("Redirecting to %s", url)
@@ -208,19 +214,35 @@ class GitHub(object):
     def _handle_invalid_response(self):
         pass
 
-    def raw_request(self, method, resource, **kwargs):
+    def raw_request(self, method, resource, access_token=None, **kwargs):
         """
         Makes a HTTP request and returns the raw
         :class:`~requests.Response` object.
 
         """
-        # Set ``Authorization`` header
-        kwargs.setdefault('headers', {})
-        kwargs['headers'].setdefault('Authorization',
-                                     'token %s' % self.get_access_token())
+        headers = self._pop_headers(kwargs)
+        headers['Authorization'] = self._get_authorization_header(access_token)
+        url = self._get_resource_url(resource)
+        return self.session.request(method, url, allow_redirects=True, headers=headers, **kwargs)
 
-        url = self.base_url + resource
-        return self.session.request(method, url, allow_redirects=True, **kwargs)
+    def _pop_headers(self, kwargs):
+        try:
+            headers = kwargs.pop('headers')
+        except KeyError:
+            return {}
+        if headers is None:
+            return {}
+        return headers.copy()
+
+    def _get_authorization_header(self, access_token):
+        if access_token is None:
+            access_token = self.get_access_token()
+        return 'token %s' % access_token
+
+    def _get_resource_url(self, resource):
+        if resource.startswith(("http://", "https://")):
+            return resource
+        return self.base_url + resource
 
     def request(self, method, resource, all_pages=False, **kwargs):
         """
@@ -239,26 +261,31 @@ class GitHub(object):
         if is_json_response(response):
             result = response.json()
             while all_pages and response.links.get('next'):
-                response = self.session.request(method,
-                                                response.links['next']['url'],
-                                                **kwargs)
+                url = response.links['next']['url']
+                response = self.raw_request(method, url, **kwargs)
                 if not is_valid_response(response) or \
                         not is_json_response(response):
                     raise GitHubError(response)
-                result += response.json()
+                body = response.json()
+                if isinstance(body, list):
+                    result += body
+                elif isinstance(body, dict) and 'items' in body:
+                    result['items'] += body['items']
+                else:
+                    raise GitHubError(response)
             return result
         else:
             return response
 
-    def get(self, resource, **kwargs):
+    def get(self, resource, params=None, **kwargs):
         """Shortcut for ``request('GET', resource)``."""
-        return self.request('GET', resource, **kwargs)
+        return self.request('GET', resource, params=params, **kwargs)
 
-    def post(self, resource, data, **kwargs):
+    def post(self, resource, data=None, **kwargs):
         """Shortcut for ``request('POST', resource)``.
         Use this to make POST request since it will also encode ``data`` to
         'application/json' format."""
-        headers = kwargs.pop('headers', {})
+        headers = dict(kwargs.pop('headers', {}))
         headers.setdefault('Content-Type', 'application/json')
         data = json.dumps(data)
         return self.request('POST', resource, headers=headers,
@@ -267,11 +294,19 @@ class GitHub(object):
     def head(self, resource, **kwargs):
         return self.request('HEAD', resource, **kwargs)
 
-    def patch(self, resource, **kwargs):
-        return self.request('PATCH', resource, **kwargs)
+    def patch(self, resource, data=None, **kwargs):
+        headers = dict(kwargs.pop('headers', {}))
+        headers.setdefault('Content-Type', 'application/json')
+        data = json.dumps(data)
+        return self.request('PATCH', resource, headers=headers,
+                            data=data, **kwargs)
 
-    def put(self, resource, **kwargs):
-        return self.request('PUT', resource, **kwargs)
+    def put(self, resource, data=None, **kwargs):
+        headers = dict(kwargs.pop('headers', {}))
+        headers.setdefault('Content-Type', 'application/json')
+        data = json.dumps(data)
+        return self.request('PUT', resource, headers=headers,
+                            data=data, **kwargs)
 
     def delete(self, resource, **kwargs):
         return self.request('DELETE', resource, **kwargs)

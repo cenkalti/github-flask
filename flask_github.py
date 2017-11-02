@@ -242,7 +242,10 @@ class GitHub(object):
     def _get_resource_url(self, resource):
         if resource.startswith(("http://", "https://")):
             return resource
-        return self.base_url + resource
+        elif resource.startswith("/"):
+            return self.base_url[:-1] + resource
+        else:
+            return self.base_url + resource
 
     def request(self, method, resource, all_pages=False, **kwargs):
         """

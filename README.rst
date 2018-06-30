@@ -31,9 +31,9 @@ it's working:
 
     $ python example.py
 
-More detailed documentation can be found here:
-https://github-flask.readthedocs.org
 
-Documentation of the GitHub API:
-https://developer.github.com/v3/
-
+Links
+-----
+* `Documentation <https://github-flask.readthedocs.org>`_
+* `PyPI <https://pypi.org/project/GitHub-Flask/>`_
+* `GiHub API Documentation <https://developer.github.com/v3/>`_

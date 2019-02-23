@@ -6,7 +6,7 @@
 
 """
 from flask import Flask, request, g, session, redirect, url_for
-from flask import render_template_string
+from flask import render_template_string, jsonify
 from flask_github import GitHub
 
 from sqlalchemy import create_engine, Column, Integer, String
@@ -45,8 +45,9 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
-    username = Column(String(200))
-    github_access_token = Column(String(200))
+    github_access_token = Column(String(255))
+    github_id = Column(Integer)
+    github_login = Column(String(255))
 
     def __init__(self, github_access_token):
         self.github_access_token = github_access_token
@@ -68,8 +69,10 @@ def after_request(response):
 @app.route('/')
 def index():
     if g.user:
-        t = 'Hello! <a href="{{ url_for("user") }}">Get user</a> ' \
+        t = 'Hello! %s <a href="{{ url_for("user") }}">Get user</a> ' \
+            '<a href="{{ url_for("repo") }}">Get repo</a> ' \
             '<a href="{{ url_for("logout") }}">Logout</a>'
+        t %= g.user.github_login
     else:
         t = 'Hello! <a href="{{ url_for("login") }}">Login</a>'
 
@@ -94,7 +97,16 @@ def authorized(access_token):
     if user is None:
         user = User(access_token)
         db_session.add(user)
+
     user.github_access_token = access_token
+
+    # Not necessary to get these details here
+    # but it helps humans to identify users easily.
+    g.user = user
+    github_user = github.get('/user')
+    user.github_id = github_user['id']
+    user.github_login = github_user['login']
+
     db_session.commit()
 
     session['user_id'] = user.id
@@ -117,7 +129,12 @@ def logout():
 
 @app.route('/user')
 def user():
-    return str(github.get('user'))
+    return jsonify(github.get('/user'))
+
+
+@app.route('/repo')
+def repo():
+    return jsonify(github.get('/repos/cenkalti/github-flask'))
 
 
 if __name__ == '__main__':

@@ -13,7 +13,7 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-DATABASE_URI = 'sqlite:////tmp/github-flask.db'
+DATABASE_URI = 'sqlite:///tmp/github-flask.db'
 SECRET_KEY = 'development key'
 DEBUG = True
 
@@ -58,7 +58,8 @@ def before_request():
     g.user = None
     if 'user_id' in session:
         g.user = User.query.get(session['user_id'])
-
+        if not g.user:
+            session.pop('user_id')
 
 @app.after_request
 def after_request(response):

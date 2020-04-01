@@ -5,6 +5,8 @@
     Shows how to authorize users with Github.
 
 """
+from datetime import timedelta
+
 from flask import Flask, request, g, session, redirect, url_for
 from flask import render_template_string, jsonify
 from flask_github import GitHub
@@ -57,6 +59,7 @@ class User(Base):
 def before_request():
     g.user = None
     if 'user_id' in session:
+        print("session['user_id']: ", session['user_id'])
         g.user = User.query.get(session['user_id'])
 
 
@@ -89,6 +92,8 @@ def token_getter():
 @app.route('/github-callback')
 @github.authorized_handler
 def authorized(access_token):
+    print("access_token: ", access_token)
+
     next_url = request.args.get('next') or url_for('index')
     if access_token is None:
         return redirect(next_url)
@@ -97,6 +102,8 @@ def authorized(access_token):
     if user is None:
         user = User(access_token)
         db_session.add(user)
+
+    print("user: ", str(user))
 
     user.github_access_token = access_token
 
@@ -109,6 +116,8 @@ def authorized(access_token):
 
     db_session.commit()
 
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(minutes=10)
     session['user_id'] = user.id
     return redirect(next_url)
 
